@@ -45,3 +45,21 @@ pub struct LikeTweet<'info> {
     #[account(mut)]
     pub tweet: Account<'info, Tweet>,
 }
+
+/** --------------------------------------------------
+*                      ERRORS
+----------------------------------------------------*/
+#[error_code]
+pub enum Errors {
+    #[msg("Tweet Cannot be upadted")]
+    CannotUpdateTweet,
+
+    #[msg("Message Cannot be empty")]
+    EmptyMessage,
+
+    #[msg("Cannot like a tweet without a valid message")]
+    NotValidTweet,
+
+    #[msg("User has already liked the tweet")]
+    UserLikedTweet,
+}
