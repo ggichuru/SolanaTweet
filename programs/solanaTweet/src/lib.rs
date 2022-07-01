@@ -5,6 +5,63 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 #[program]
 pub mod solana_tweet {
     use super::*;
+
+    /** --------------------------------------------------
+    *                      FUNCTIONS
+    ----------------------------------------------------*/
+    pub fn setup_platform(ctx: Context<TweetPlatform>) -> Result<()> {
+        let tweet = &mut ctx.accounts.tweet;
+
+        tweet.likes = 0;
+        tweet.message = ("").to_string();
+
+        Ok(())
+    }
+
+    pub fn write_tweet(
+        ctx: Context<WriteTweet>,
+        message: String,
+        user_public_key: Pubkey,
+    ) -> Result<()> {
+        let tweet = &mut ctx.accounts.tweet;
+
+        if !tweet.message.trim().is_empty() {
+            return err!(Errors::CannotUpdateTweet);
+        }
+
+        if message.trim().is_empty() {
+            return err!(Errors::EmptyMessage);
+        }
+
+        tweet.message = message;
+        tweet.likes = 0;
+        tweet.creator = user_public_key;
+
+        Ok(())
+    }
+
+    pub fn like_tweet(ctx: Context<LikeTweet>, user_liking_tweet: Pubkey) -> Result<()> {
+        let tweet = &mut ctx.accounts.tweet;
+
+        if tweet.message.trim().is_empty() {
+            return err!(Errors::NotValidTweet);
+        }
+
+        if tweet.likes == 5 {
+            return err!(Errors::ReachedMaximumLikes);
+        }
+
+        let mut iter = tweet.people_who_liked.iter();
+
+        if iter.any(|&v| v == user_liking_tweet) {
+            return err!(Errors::UserLikedTweet);
+        }
+
+        tweet.likes += 1;
+        tweet.people_who_liked.push(user_liking_tweet);
+
+        Ok(())
+    }
 }
 
 /** --------------------------------------------------
@@ -56,6 +113,9 @@ pub enum Errors {
 
     #[msg("Message Cannot be empty")]
     EmptyMessage,
+
+    #[msg("Cannot receive more than 5 likes")]
+    ReachedMaximumLikes,
 
     #[msg("Cannot like a tweet without a valid message")]
     NotValidTweet,
