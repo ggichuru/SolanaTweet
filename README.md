@@ -6,4 +6,5 @@ This is a solana program that writes a tweet and users are able to like the twee
 
 - Anchor
 - Rust
+- Typescript
 - Solana
