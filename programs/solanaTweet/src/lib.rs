@@ -25,10 +25,12 @@ pub mod solana_tweet {
     ) -> Result<()> {
         let tweet = &mut ctx.accounts.tweet;
 
+        // Cannot override a tweet message if the tweet message already has data
         if !tweet.message.trim().is_empty() {
             return err!(Errors::CannotUpdateTweet);
         }
 
+        // Can't write an emptu tweet message if the message provided by external user is empty
         if message.trim().is_empty() {
             return err!(Errors::EmptyMessage);
         }
@@ -51,6 +53,11 @@ pub mod solana_tweet {
             return err!(Errors::ReachedMaximumLikes);
         }
 
+        /*
+         * Iterate through all the values from the people_who_liked data field
+         * This verifies if the user liking the tweet has like it before.
+         * Otherwise, add the user liking the tweet to the array
+         */
         let mut iter = tweet.people_who_liked.iter();
 
         if iter.any(|&v| v == user_liking_tweet) {
