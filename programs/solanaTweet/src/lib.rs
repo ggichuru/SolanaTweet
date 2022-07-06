@@ -30,7 +30,7 @@ pub mod solana_tweet {
             return err!(Errors::CannotUpdateTweet);
         }
 
-        // Can't write an emptu tweet message if the message provided by external user is empty
+        // Can't write an empty tweet message if the message provided by external user is empty
         if message.trim().is_empty() {
             return err!(Errors::EmptyMessage);
         }
