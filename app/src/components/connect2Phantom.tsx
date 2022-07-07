@@ -24,6 +24,11 @@ const Connect2Phantom: FC = () => {
   const [connected, setConnected] = useState(false);
   const [pubKey, setPubKey] = useState<PublicKey | null>(null);
 
+  /**
+   * Check if the phantom wallet extension is available in browser
+   * If so, store the wallet object as the state variable `provider`
+   * `walletAvail` shows a diff mesage if phantom is not installed
+   */
   useEffect(() => {
     if ("solana" in window) {
       const solWindow = window as WindowWithSolana;
@@ -32,12 +37,16 @@ const Connect2Phantom: FC = () => {
         setProvider(solWindow.solana);
         setWalletAvail(true);
 
-        // Attempt to connect to the wallet
+        // Attempt to connect to the wallet if app is already in phantoms trusted list
         solWindow.solana.connect({ onlyIfTrusted: true });
       }
     }
   }, []);
 
+  /**
+   * Defines callback for connect/diconnect events
+   * The callbacks set the connected state and pubkey
+   */
   useEffect(() => {
     provider?.on("connect", (publicKey: PublicKey) => {
       console.log(`connect event: ${publicKey}`);
@@ -88,7 +97,10 @@ const Connect2Phantom: FC = () => {
         </>
       ) : (
         <>
-        <p>Opps!!! Phantom is not available. Go get it <a href="https://phantom.app/">https://phantom.app/</a>.</p>
+          <p>
+            Opps!!! Phantom is not available. Go get it{" "}
+            <a href="https://phantom.app/">https://phantom.app/</a>.
+          </p>
         </>
       )}
     </div>
